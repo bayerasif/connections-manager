@@ -77,5 +77,5 @@ def generate_resources(amount: int) -> None:
 
 if __name__ == '__main__':
     if not os.path.isfile('resources_pool.db'):
-        generate_resources(amount=100)
+        generate_resources(amount=20)
     app.run(debug=True, host='0.0.0.0', port=7080)
