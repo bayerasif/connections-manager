@@ -34,6 +34,7 @@ def get_resource():
     On failure, if full or invalid request returns '400 Bad Request' HTTP response.
     """
     if request.method == 'GET':
+        # Locks to avoid delivering same resource for different requests.
         with lock:
             free_resource = db.session.query(Resource).filter_by(busy=False).first()
             if not free_resource:
@@ -45,7 +46,6 @@ def get_resource():
 
     if request.method == 'POST':
         content = request.json
-        print(content)
         # Checks if the body consists of only 'ip' field as defined.
         if not content or ['ip'] != list(content.keys()):
             abort(400)
@@ -63,7 +63,6 @@ def generate_resources(amount: int) -> None:
     Assumes that the database is not existing yet.
     :param amount: The amount of resources.
     """
-    db.drop_all()
     db.create_all()
     for num in range(amount):
         resource = Resource(
@@ -77,6 +76,6 @@ def generate_resources(amount: int) -> None:
 
 
 if __name__ == '__main__':
-    # if not os.path.isfile('resources_pool.db'):
-    generate_resources(amount=100)
+    if not os.path.isfile('resources_pool.db'):
+        generate_resources(amount=100)
     app.run(debug=True, host='0.0.0.0', port=7080)
