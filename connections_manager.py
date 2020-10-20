@@ -1,6 +1,6 @@
 from flask import Flask, request, abort
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import exc
+from threading import Lock
 import string
 import random
 import os.path
@@ -9,6 +9,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///resources_pool.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+lock = Lock()
 
 
 class Resource(db.Model):
@@ -30,25 +31,21 @@ def get_resource():
     Handles the requests for resources.
     :return: On successful GET request returns the resource as json in the defined format.
     On successful POST request returns the released resource ip in json (the same that was received).
-    On failure, if full or invalid request returns '400 Bad Request' HTTP response, if conflict
-    between two sessions returns '409 Conflict' HTTP response.
+    On failure, if full or invalid request returns '400 Bad Request' HTTP response.
     """
     if request.method == 'GET':
-        try:
-            # Locks the row, an exc.SQLAlchemyError will raise if another session will try to update.
-            free_resource = db.session.query(Resource).filter_by(busy=False).with_for_update().first()
-            if free_resource:
-                free_resource.busy = True
-                db.session.commit()
-                return free_resource.get_dict()
-            else:
+        with lock:
+            free_resource = db.session.query(Resource).filter_by(busy=False).first()
+            if not free_resource:
+                # There are no free resources.
                 abort(400)
-        except exc.SQLAlchemyError:
-            # Conflict with another active session.
-            abort(409)
+            free_resource.busy = True
+            db.session.commit()
+        return free_resource.get_dict()
 
     if request.method == 'POST':
         content = request.json
+        print(content)
         # Checks if the body consists of only 'ip' field as defined.
         if not content or ['ip'] != list(content.keys()):
             abort(400)
@@ -62,23 +59,24 @@ def get_resource():
 
 def generate_resources(amount: int) -> None:
     """
-    Initializes the pool database and generate the requested amount of resources randomly.
+    Initializes the database and generates the requested amount of random resources.
     Assumes that the database is not existing yet.
     :param amount: The amount of resources.
     """
+    db.drop_all()
     db.create_all()
     for num in range(amount):
         resource = Resource(
             ip='127.0.5.{}'.format(num),
             username='user{}'.format(num),
             password=''.join(random.choices(string.ascii_letters + string.digits, k=8)),
-            busy=False
+            busy=False,
         )
         db.session.add(resource)
     db.session.commit()
 
 
 if __name__ == '__main__':
-    if not os.path.isfile('resources_pool.db'):
-        generate_resources(amount=20)
+    # if not os.path.isfile('resources_pool.db'):
+    generate_resources(amount=100)
     app.run(debug=True, host='0.0.0.0', port=7080)
