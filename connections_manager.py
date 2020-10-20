@@ -5,9 +5,6 @@ import string
 import random
 import os.path
 
-import time
-
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///resources_pool.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
