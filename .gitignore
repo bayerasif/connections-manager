@@ -1,3 +1,4 @@
 # Project exclude paths
 /venv/
 resources_pool.db
+edge_cases_chek.py
