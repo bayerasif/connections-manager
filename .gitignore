@@ -1,2 +1,3 @@
 # Project exclude paths
 /venv/
+/resources_pool.db
