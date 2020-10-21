@@ -51,8 +51,8 @@ In the case of one of the following:
 
 
 ## Resources Database
-On the first run of the service a resource pool database will be created, and will be initialized with 20 random resources.
-The resulting behaviour will be that in the case that the service stops and then runs again, the resources will be in the same state (locked or free) as before.
+On the first run of the program a resource pool database will be created, and will be initialized with 20 random resources.
+The resulting behaviour will be that in the case that the program stops and then runs again, the resources will be in the same state (locked or free) as before.
 In order to reset the resources data, the db file 
 ```text
 '/resources_pool.db'
