@@ -22,9 +22,9 @@ http://0.0.0.0:7080/
 On success a resource will be returned in the given format:
 ```json
 {
-  "ip": <resource_ip>
-  "username": <username>
-  "password": <password>
+  "ip": "<resource_ip>",
+  "username": "<username>",
+  "password": "<password>"
 }
 ```
 In order to release a resource send a POST request to:
@@ -34,7 +34,7 @@ http://0.0.0.0:7080/
 with body in the given format:
 ```json
 {
-  "ip": <resource_ip>
+  "ip": "<resource_ip>"
 }
 ```
 On success the same json will be returned.
