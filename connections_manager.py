@@ -42,7 +42,9 @@ def get_resource():
                 abort(400)
             free_resource.busy = True
             db.session.commit()
-        return free_resource.get_dict()
+        resource = free_resource.get_dict()
+        resource['debug'] = True
+        return resource
 
     if request.method == 'POST':
         content = request.json

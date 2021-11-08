@@ -1,4 +1,7 @@
 # Project exclude paths
-/venv/
+.gitignore
+venv
 resources_pool.db
 edge_cases_check.py
+.idea
+interview.py
